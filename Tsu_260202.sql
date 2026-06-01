@@ -112,9 +112,10 @@ GROUP BY train_id
 HAVING COUNT(ticket_id) > 10 ;
 
 -- CÂU 12
-SELECT ti.passenger_id,p.passenger_full_name,train_id,ticket_price FROM Tickets AS ti
-INNER JOIN  Passengers AS p ON p.passenger_id = ti.passenger_id
-GROUP BY ti.passenger_id
+SELECT p.passenger_id,p.passenger_full_name,tr.train_id,SUM(ti.ticket_price) AS 'Tổng tiền' FROM Passengers AS p
+INNER JOIN  Tickets AS ti ON p.passenger_id = ti.passenger_id
+INNER JOIN Trains AS tr ON tr.train_id = ti.train_id
+GROUP BY p.passenger_id,tr.train_id
 HAVING SUM(ticket_price) > 2000000 ;
 
 -- CÂU 13
@@ -155,7 +156,7 @@ CREATE TRIGGER tg_check_ticket_date
 BEFORE INSERT ON Tickets
 FOR EACH ROW
 BEGIN
-	IF NEW.departure_date < CURRENT_DATE THEN
+	IF NEW.departure_date < NOW() THEN
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=  'Ngày khởi hành không hợp lệ';
 	END IF;
 END //
